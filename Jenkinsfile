@@ -1,17 +1,25 @@
 pipeline {
-    agent { label 'master' }
+    agent { 'label' master}
     stages {
-        stage('build') {
+        stage('Build') {
             steps {
-                echo "compiling the java source code BLA"
-                sh "javac Hello.java"
-            
+                sh 'mvn -B -DskipTests clean package'
             }
         }
-        stage('run') {
+        stage('Test') {
             steps {
-                echo "running the compiled java code blabla"
-                sh 'java Hello'
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+        stage('Deliver') {
+            steps {
+                sh 'chmod +x deliver-script.sh'
+                sh './deliver-script.sh'
             }
         }
     }
